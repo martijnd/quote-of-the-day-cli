@@ -2,12 +2,14 @@
 
 namespace App\Commands;
 
-use Illuminate\Console\Scheduling\Schedule;
+use App\Traits\Tokenable;
 use Illuminate\Support\Facades\Http;
 use LaravelZero\Framework\Commands\Command;
 
 class QuoteOfTheDayCommand extends Command
 {
+    use Tokenable;
+
     /**
      * The signature of the command.
      *
@@ -29,23 +31,55 @@ class QuoteOfTheDayCommand extends Command
      */
     public function handle()
     {
-        $response = Http::get(env('API_URL')."/qotd")
-            ->json();
+        $response = Http::get(config('app.api_url') . '/qotd')->json();
         $quoteData = $response['quote'];
+
         $this->info($quoteData['body']);
-        $this->info('- '.$quoteData['author']);
+        $this->info('- ' . $quoteData['author']);
+
+        if (!$this->handleQuoteFavorite($quoteData['id'])) {
+            return 1;
+        }
 
         return 0;
     }
 
     /**
-     * Define the command's schedule.
+     * Ask the user's opinion about a quote and let them vote on it.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule $schedule
-     * @return void
+     * @param int $quoteId
+     * @return bool
      */
-    public function schedule(Schedule $schedule): void
+    private function handleQuoteFavorite(int $quoteId): bool
     {
-        // $schedule->command(static::class)->everyMinute();
+        // Let the user vote yes or no
+        if (!$this->confirm('Do you like this quote?')) {
+            return true;
+        }
+
+        if (!$this->checkTokens()) {
+            return false;
+        }
+
+        // Save to api
+        $response = Http::withHeaders($this->userSessionTokenHeaders())
+            ->put(config('app.api_url') . "/quotes/$quoteId/fav")
+            ->json();
+
+        if (isset($response['error_code'])) {
+            $this->error($response['message']);
+
+            return false;
+        }
+
+        if (isset($response['user_details']) && !$response['user_details']['favorite']) {
+            $this->error('Could not favorite the quote.');
+
+            return false;
+        }
+
+        $this->line('Successfully favorited this quote!');
+
+        return true;
     }
 }
