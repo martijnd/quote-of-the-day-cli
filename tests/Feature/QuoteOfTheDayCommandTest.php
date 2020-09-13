@@ -2,9 +2,10 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 
-test('quote of the day command works', function () {
+it('successfully returns a quote and favorites it', function () {
     $author = 'Veronica A. Shoffstall';
     $quoteId = 1;
     $body = 'Simplicity is the ultimate sophistication.';
@@ -33,7 +34,53 @@ test('quote of the day command works', function () {
         ->assertExitCode(0);
 });
 
-test('if quote is not found', function () {
+it('stops if the api token is not set', function () {
+    Config::set('app.api_token', null);
+
+    $author = 'Veronica A. Shoffstall';
+    $quoteId = 1;
+    $body = 'Simplicity is the ultimate sophistication.';
+    Http::fake([
+        config('app.api_url') . '/qotd' => Http::response([
+            'quote' => [
+                'id' => $quoteId,
+                'author' => $author,
+                'body' => $body,
+            ]
+        ])
+    ]);
+    $this->artisan('qod')
+        ->expectsOutput($body)
+        ->expectsOutput("- $author")
+        ->expectsQuestion('Do you like this quote?', 'Yes')
+        ->expectsOutput('Api token not set.')
+        ->assertExitCode(1);
+});
+
+it('stops if the session token is not set', function () {
+    Config::set('app.user_session_token', null);
+
+    $author = 'Veronica A. Shoffstall';
+    $quoteId = 1;
+    $body = 'Simplicity is the ultimate sophistication.';
+    Http::fake([
+        config('app.api_url') . '/qotd' => Http::response([
+            'quote' => [
+                'id' => $quoteId,
+                'author' => $author,
+                'body' => $body,
+            ]
+        ])
+    ]);
+    $this->artisan('qod')
+        ->expectsOutput($body)
+        ->expectsOutput("- $author")
+        ->expectsQuestion('Do you like this quote?', 'Yes')
+        ->expectsOutput('User session token not set.')
+        ->assertExitCode(1);
+});
+
+it('returns quote not found', function () {
     $author = 'Veronica A. Shoffstall';
     $quoteId = 1;
     $body = 'Simplicity is the ultimate sophistication.';
@@ -58,7 +105,7 @@ test('if quote is not found', function () {
         ->expectsOutput('Quote not found.')
         ->assertExitCode(1);
 });
-test('if quote is not favorited', function () {
+it('shows favoriting error', function () {
     $author = 'Veronica A. Shoffstall';
     $quoteId = 1;
     $body = 'Simplicity is the ultimate sophistication.';

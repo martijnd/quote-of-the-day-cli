@@ -39,7 +39,7 @@ class CreateUserCommand extends Command
         while ($password !== $passwordConfirm) {
             $this->info('Your passwords do not match!');
             $password = $this->secret('Choose a password');
-            $passwordConfirm = $this->secret('Choose a password');
+            $passwordConfirm = $this->secret('Confirm your password');
         }
 
         $response = Http::withHeaders($this->apiTokenHeaders())
@@ -52,7 +52,7 @@ class CreateUserCommand extends Command
             ])->json();
 
         if (empty($response['User-Token'])) {
-            $errorMessages = collect(explode(';', $response['message']));
+            $errorMessages = collect(explode('; ', $response['message']));
             $errorMessages->each(fn($message) => $this->error($message));
 
             return 1;
