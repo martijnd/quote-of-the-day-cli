@@ -3,6 +3,7 @@
 namespace App\Commands;
 
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Http;
 use LaravelZero\Framework\Commands\Command;
 
 class QuoteOfTheDayCommand extends Command
@@ -12,14 +13,14 @@ class QuoteOfTheDayCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'command:name';
+    protected $signature = 'qod';
 
     /**
      * The description of the command.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Get the quote of the day';
 
     /**
      * Execute the console command.
@@ -28,7 +29,13 @@ class QuoteOfTheDayCommand extends Command
      */
     public function handle()
     {
-        //
+        $response = Http::get(env('API_URL')."/qotd")
+            ->json();
+        $quoteData = $response['quote'];
+        $this->info($quoteData['body']);
+        $this->info('- '.$quoteData['author']);
+
+        return 0;
     }
 
     /**
