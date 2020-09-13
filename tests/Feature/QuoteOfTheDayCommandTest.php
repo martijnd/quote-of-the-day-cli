@@ -27,10 +27,11 @@ it('successfully returns a quote and favorites it', function () {
             ]
         ])
     ]);
-    $this->artisan('qod')
+    $this->artisan('please')
         ->expectsOutput($body)
         ->expectsOutput("- $author")
         ->expectsQuestion('Do you like this quote?', 'Yes')
+        ->expectsOutput("Done!")
         ->assertExitCode(0);
 });
 
@@ -47,7 +48,7 @@ it('stops if the user says no', function () {
             ]
         ])
     ]);
-    $this->artisan('qod')
+    $this->artisan('please')
         ->expectsOutput($body)
         ->expectsOutput("- $author")
         ->expectsQuestion('Do you like this quote?', '')
@@ -69,7 +70,7 @@ it('stops if the api token is not set', function () {
             ]
         ])
     ]);
-    $this->artisan('qod')
+    $this->artisan('please')
         ->expectsOutput($body)
         ->expectsOutput("- $author")
         ->expectsQuestion('Do you like this quote?', 'Yes')
@@ -92,7 +93,7 @@ it('stops if the session token is not set', function () {
             ]
         ])
     ]);
-    $this->artisan('qod')
+    $this->artisan('please')
         ->expectsOutput($body)
         ->expectsOutput("- $author")
         ->expectsQuestion('Do you like this quote?', 'Yes')
@@ -118,7 +119,7 @@ it('returns quote not found', function () {
             "message" => "Quote not found."
         ])
     ]);
-    $this->artisan('qod')
+    $this->artisan('please')
         ->expectsOutput($body)
         ->expectsOutput("- $author")
         ->expectsQuestion('Do you like this quote?', 'Yes')
@@ -147,7 +148,7 @@ it('shows favoriting error', function () {
             ]
         ])
     ]);
-    $this->artisan('qod')
+    $this->artisan('please')
         ->expectsOutput($body)
         ->expectsOutput("- $author")
         ->expectsQuestion('Do you like this quote?', 'Yes')

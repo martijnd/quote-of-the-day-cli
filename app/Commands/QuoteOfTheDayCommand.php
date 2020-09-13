@@ -15,7 +15,7 @@ class QuoteOfTheDayCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'qod';
+    protected $signature = 'please';
 
     /**
      * The description of the command.
@@ -78,7 +78,7 @@ class QuoteOfTheDayCommand extends Command
             return false;
         }
 
-        $this->line('Successfully favorited this quote!');
+        $this->line('Done!');
 
         return true;
     }
