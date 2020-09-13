@@ -42,6 +42,10 @@ return [
 
     'env' => 'development',
 
+    'api_url' => env('API_URL', 'https://favqs.com/api'),
+    'api_token' => env('API_TOKEN'),
+    'user_session_token' => env('USER_SESSION_TOKEN'),
+
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
