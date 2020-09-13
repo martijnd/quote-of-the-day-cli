@@ -34,6 +34,26 @@ it('successfully returns a quote and favorites it', function () {
         ->assertExitCode(0);
 });
 
+it('stops if the user says no', function () {
+    $author = 'Veronica A. Shoffstall';
+    $quoteId = 1;
+    $body = 'Simplicity is the ultimate sophistication.';
+    Http::fake([
+        config('app.api_url') . '/qotd' => Http::response([
+            'quote' => [
+                'id' => $quoteId,
+                'author' => $author,
+                'body' => $body,
+            ]
+        ])
+    ]);
+    $this->artisan('qod')
+        ->expectsOutput($body)
+        ->expectsOutput("- $author")
+        ->expectsQuestion('Do you like this quote?', '')
+        ->assertExitCode(0);
+});
+
 it('stops if the api token is not set', function () {
     Config::set('app.api_token', null);
 
